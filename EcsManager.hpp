@@ -1,0 +1,80 @@
+
+#ifndef ECS_MANAGER_HPP_
+    #define ECS_MANAGER_HPP_
+
+    // std
+    #include <type_traits> // std::is_same_v
+    #include <iostream>
+
+    // ProjectManager
+    #include "EcsComponent.hpp"
+    #include "Ecs.hpp"
+
+namespace Project {
+
+    /**
+     * @brief ProjectManager
+     *
+     * @author 
+     */
+    class ProjectManager {
+        public:
+
+            ProjectManager()
+            {
+                config_extractor<project_config::components_list>::function(_ecs); //sys
+            };
+
+            ~ProjectManager() = default;
+
+            /**
+             * @brief Client
+             *
+             * @param ip
+             * @param port
+             * @return int
+             */
+            virtual int Start() = 0;
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+        protected:
+
+            /**
+             * @brief Config Extractor (default will make the compilation failed) [Dark C++]
+             * @def the config extractor is used to extract all component need at the start of the program
+             *
+             * @tparam T
+             */
+            template <class T>
+            struct config_extractor { // ne devrait jamais être instancié sauf erreur => gestion d'erreur
+                static_assert(std::is_same_v<T, std::tuple<>>, "component_list in ComponentManager.hpp should be a tuple of Components"); // empeche la compilation si T n'est pas std::tuple<int> (ce qui ne peux jamais arriver)
+            };
+
+            /**
+             * @brief Config Extractor (specification won't make the compilation failed) [Dark C++]
+             * @def the config extractor is used to extract all component need at the start of the program
+             *
+             * @tparam Components
+             */
+            template <class ... Components>
+            struct config_extractor<std::tuple<Components...>> { // overload si T est un tuple de choses. Ne clash pas avec la def précédentes
+                /**
+                 * @brief this function will extract all component need at the start of the program and register them in the ECS
+                 *
+                 * @param r
+                 */
+                static void function(registry &r) {
+                    (r.register_component<Components>(), ...);
+                }
+            };
+
+        protected:
+            registry _ecs;
+
+        public:
+    };
+
+};
+
+#endif /* !ECS_COMPONENT_HPP_ */
