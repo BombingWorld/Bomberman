@@ -28,21 +28,68 @@ class ProjectManager {
         * @param port
         * @return int
         */
-        int Start()  {
+        int Run()  {
             const int screenWidth = 800;
             const int screenHeight = 450;
 
             InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
-            SetTargetFPS(60);
+            SetTargetFPS(244);
+
+            this->init();
+
             while (!WindowShouldClose()) // Detect window close button or ESC key
             {
                 BeginDrawing();
-                    ClearBackground(RAYWHITE);
-                    DrawText("Congrats! You created your first window!", 190, 200, 20,(Color){LIGHTGRAY});
+                    ClearBackground(BLACK);
+                    
+                    this->render2D();
+                    //DrawText("Congrats! You created your first window!", 190, 200, 20,(Color){LIGHTGRAY});
                 EndDrawing();
             }
             CloseWindow();
             return 0;
+        }
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+        void init() {
+            auto background = _ecs.spawn_entity();
+            _ecs.add_component<Position>(background, {0, 0});
+            _ecs.add_component<Drawable>(background, {true, LoadTexture("../assets/background.png")});
+        }
+
+        void update() {
+
+        }
+
+        void render2D() {
+            
+            BeginDrawing();
+            
+            // Effacer l'écran avec une couleur de fond blanche
+            ClearBackground(WHITE);
+            
+            // Dessiner les entités avec le composant Drawable
+            auto &drawables = _ecs.get_components<Drawable>();
+            auto &positions = _ecs.get_components<Position>();
+
+            for (int i = 0; i < drawables.size(); i++) {
+                if (drawables[i] && positions[i]) {
+                    DrawTexture(drawables[i]->texture, positions[i]->x, positions[i]->y, WHITE);
+                }
+            }
+
+            EndDrawing();
+        }
+
+
+
+        void render3D() {
+
+        }
+
+        void event() {
+
         }
 
     protected:
