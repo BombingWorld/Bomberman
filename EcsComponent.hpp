@@ -3,7 +3,6 @@
 
     #include <tuple>
 
-
 struct project_config {
     using components_list = std::tuple<>;
 };
