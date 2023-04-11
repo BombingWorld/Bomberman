@@ -1,0 +1,6 @@
+- [ ] app
+- [ ] Bomberman manager 
+- [ ] ECS
+- [ ] Makefile/cmake
+- [ ] Librairies Raylib
+- [ ] README.MD
