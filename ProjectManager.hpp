@@ -33,9 +33,9 @@ class ProjectManager {
             const int screenHeight = 450;
 
             InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
-            SetTargetFPS(244);
+            SetTargetFPS(30);
 
-            this->init();
+            //this->init();
 
             while (!WindowShouldClose()) // Detect window close button or ESC key
             {
@@ -43,7 +43,7 @@ class ProjectManager {
                     ClearBackground(BLACK);
                     
                     this->render2D();
-                    //DrawText("Congrats! You created your first window!", 190, 200, 20,(Color){LIGHTGRAY});
+                    DrawText ("Congrats! You created your first window!", 190, 200, 20,(Color){LIGHTGRAY});
                 EndDrawing();
             }
             CloseWindow();
@@ -56,6 +56,44 @@ class ProjectManager {
             auto background = _ecs.spawn_entity();
             _ecs.add_component<Position>(background, {0, 0});
             _ecs.add_component<Drawable>(background, {true, LoadTexture("../assets/background.png")});
+            _ecs.add_component<Killable>(background, {true});
+            _ecs.add_component<Movable>(background, {false, 'z', 's', 'q', 'd'});
+
+
+            auto player1 = _ecs.spawn_entity();
+            _ecs.add_component<Position>(player1, {0, 10});
+            _ecs.add_component<Drawable>(player1, {true, LoadTexture("../assets/player.png")});
+            _ecs.add_component<Killable>(player1, {true});
+            _ecs.add_component<Movable>(player1, {true, 'z', 's', 'q', 'd'});
+
+            auto player2 = _ecs.spawn_entity();
+            _ecs.add_component<Position>(player2, {10, 0});
+            _ecs.add_component<Drawable>(player2, {true, LoadTexture("../assets/player.png")});
+            _ecs.add_component<Killable>(player2, {true});
+            _ecs.add_component<Movable>(player2, {true, 'z', 's', 'q', 'd'});
+
+
+            // ??? boucle for a revoir pour faire les murs tout autour du terrain 
+            auto wall = _ecs.spawn_entity();
+            _ecs.add_component<Position>(wall, {0, 0});
+            _ecs.add_component<Drawable>(wall, {true, LoadTexture("../assets/wall.png")});
+            _ecs.add_component<Killable>(wall, {true});
+            _ecs.add_component<Movable>(wall, {false, 'z', 's', 'q', 'd'});
+
+
+            // ??? initialisation des bombes pour le/les joueurs ? 
+            auto bomb = _ecs.spawn_entity();
+            _ecs.add_component<Position>(bomb, {0, 0});
+            _ecs.add_component<Drawable>(bomb, {true, LoadTexture("../assets/bomb.png")});
+            _ecs.add_component<Killable>(bomb, {true});
+            _ecs.add_component<Movable>(bomb, {false, 'z', 's', 'q', 'd'});
+
+            auto box = _ecs.spawn_entity();
+            _ecs.add_component<Position>(box, {0, 0});
+            _ecs.add_component<Drawable>(box, {true, LoadTexture("../assets/box.png")});
+            _ecs.add_component<Killable>(box, {true});
+            _ecs.add_component<Movable>(box, {false, 'z', 's', 'q', 'd'});
+
         }
 
         void update() {
