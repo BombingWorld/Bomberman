@@ -35,7 +35,7 @@ class ProjectManager {
             InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
             SetTargetFPS(30);
 
-            //this->init();
+            this->init();
 
             while (!WindowShouldClose()) // Detect window close button or ESC key
             {
@@ -73,7 +73,7 @@ class ProjectManager {
             _ecs.add_component<Movable>(player2, {true, 'z', 's', 'q', 'd'});
 
 
-            // ??? boucle for a revoir pour faire les murs tout autour du terrain 
+            // ??? boxxucle for a revoir pour faire les murs tout autour du terrain 
             auto wall = _ecs.spawn_entity();
             _ecs.add_component<Position>(wall, {0, 0});
             _ecs.add_component<Drawable>(wall, {true, LoadTexture("../assets/wall.png")});
@@ -102,7 +102,7 @@ class ProjectManager {
 
         void render2D() {
             
-            BeginDrawing();
+            //BeginDrawing(); // faut pas le mettre ici sinon le programme essaye de dessiner 2 fois
             
             // Effacer l'écran avec une couleur de fond blanche
             ClearBackground(WHITE);
@@ -117,7 +117,7 @@ class ProjectManager {
                 }
             }
 
-            EndDrawing();
+            //EndDrawing(); // faut pas le mettre ici sinon le programme essaye d'arreter de dessiner 2 fois
         }
 
 
