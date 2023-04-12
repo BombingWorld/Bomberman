@@ -5,6 +5,8 @@
     // std
     #include <type_traits> // std::is_same_v
     #include <iostream>
+    #include <vector>
+    #include <any>
 
     // ProjectManager
     #include "EcsComponent.hpp"
@@ -53,11 +55,76 @@ class ProjectManager {
 //////////////////////////////////////////////////////////////////////////////////////////////
 
         void init() {
+
+            //taille du terrain
+            float hauteur = 450.0;
+            float largeur = 800.0;
+            int tailleMur = 15;
+
+            // Charger l'image
+            Image image = LoadImage("../assets/mur.png");
+
+            // Redimensionner l'image en 15x15
+            ImageResize(&image, 15, 15);
+
+           
+
+            std::vector<std::any> tabWall; 
+    
+            for (float x = 0; x < largeur; x+= 15)
+            {
+                auto wall = _ecs.spawn_entity();
+                _ecs.add_component<Position>(wall, {x, 0.0});
+                _ecs.add_component<Drawable>(wall, {true, LoadTextureFromImage(image)});
+                _ecs.add_component<Killable>(wall, {true});
+                _ecs.add_component<Movable>(wall, {false, 'z', 's', 'q', 'd'});
+                tabWall.push_back(wall);
+            }
+    
+            for (float x = 0; x < largeur; x+= 15)
+            {
+                auto wall = _ecs.spawn_entity();
+                _ecs.add_component<Position>(wall, {x, hauteur-tailleMur});
+                _ecs.add_component<Drawable>(wall, {true, LoadTextureFromImage(image)});
+                _ecs.add_component<Killable>(wall, {true});
+                _ecs.add_component<Movable>(wall, {false, 'z', 's', 'q', 'd'});
+                tabWall.push_back(wall);
+            }
+    
+            for (float y = 0; y < hauteur; y+= 15)
+            {
+                auto wall = _ecs.spawn_entity();
+                _ecs.add_component<Position>(wall, {0.0, y});
+                _ecs.add_component<Drawable>(wall, {true, LoadTextureFromImage(image)});
+                _ecs.add_component<Killable>(wall, {true});
+                _ecs.add_component<Movable>(wall, {false, 'z', 's', 'q', 'd'});
+                tabWall.push_back(wall);
+            }
+
+             for (float y = 0; y < hauteur; y+= 15)
+            {
+                auto wall = _ecs.spawn_entity();
+                _ecs.add_component<Position>(wall, {largeur-tailleMur, y});
+                _ecs.add_component<Drawable>(wall, {true, LoadTextureFromImage(image)});
+                _ecs.add_component<Killable>(wall, {true});
+                _ecs.add_component<Movable>(wall, {false, 'z', 's', 'q', 'd'});
+                tabWall.push_back(wall);
+            }
+            
             auto background = _ecs.spawn_entity();
             _ecs.add_component<Position>(background, {0, 0});
             _ecs.add_component<Drawable>(background, {true, LoadTexture("../assets/background.png")});
             _ecs.add_component<Killable>(background, {true});
             _ecs.add_component<Movable>(background, {false, 'z', 's', 'q', 'd'});
+
+
+/*
+            //box a explosé    
+            auto box = _ecs.spawn_entity();
+            _ecs.add_component<Position>(box, {0, 0});
+            _ecs.add_component<Drawable>(box, {true, LoadTexture("../assets/box.png")});
+            _ecs.add_component<Killable>(box, {true});
+            _ecs.add_component<Movable>(box, {false, 'z', 's', 'q', 'd'});
 
 
             auto player1 = _ecs.spawn_entity();
@@ -73,14 +140,6 @@ class ProjectManager {
             _ecs.add_component<Movable>(player2, {true, 'z', 's', 'q', 'd'});
 
 
-            // ??? boxxucle for a revoir pour faire les murs tout autour du terrain 
-            auto wall = _ecs.spawn_entity();
-            _ecs.add_component<Position>(wall, {0, 0});
-            _ecs.add_component<Drawable>(wall, {true, LoadTexture("../assets/wall.png")});
-            _ecs.add_component<Killable>(wall, {true});
-            _ecs.add_component<Movable>(wall, {false, 'z', 's', 'q', 'd'});
-
-
             // ??? initialisation des bombes pour le/les joueurs ? 
             auto bomb = _ecs.spawn_entity();
             _ecs.add_component<Position>(bomb, {0, 0});
@@ -88,12 +147,8 @@ class ProjectManager {
             _ecs.add_component<Killable>(bomb, {true});
             _ecs.add_component<Movable>(bomb, {false, 'z', 's', 'q', 'd'});
 
-            auto box = _ecs.spawn_entity();
-            _ecs.add_component<Position>(box, {0, 0});
-            _ecs.add_component<Drawable>(box, {true, LoadTexture("../assets/box.png")});
-            _ecs.add_component<Killable>(box, {true});
-            _ecs.add_component<Movable>(box, {false, 'z', 's', 'q', 'd'});
 
+*/
         }
 
         void update() {
