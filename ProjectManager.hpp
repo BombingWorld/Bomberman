@@ -16,10 +16,9 @@
 class ProjectManager {
     public:
 
-        ProjectManager()
-        {
+        ProjectManager() {
             config_extractor<project_config::components_list>::function(_ecs); //sys
-        };
+        }
 
         ~ProjectManager() = default;
 
@@ -31,18 +30,20 @@ class ProjectManager {
         * @return int
         */
         int Run()  {
-            const int screenWidth = 800;
-            const int screenHeight = 450;
+            const int screenWidth = 1900;
+            const int screenHeight = 1000;
 
             InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+//            ToggleFullscreen();
             SetTargetFPS(30);
 
             this->init();
 
-            while (!WindowShouldClose()) // Detect window close button or ESC key
-            {
+            while (!WindowShouldClose()) { // Detect window close button or ESC key
+                this->update();
                 BeginDrawing();
                     ClearBackground(BLACK);
+                    this->event();
                     
                     this->render2D();
                     DrawText ("Congrats! You created your first window!", 190, 200, 20,(Color){LIGHTGRAY});
@@ -57,111 +58,96 @@ class ProjectManager {
         void init() {
 
             //taille du terrain
-            float hauteur = 450.0;
-            float largeur = 800.0;
-            int tailleMur = 15;
+            const int TAILLE_MUR = 50;
+
+            const std::vector<std::string> map = {
+                "xxxxxxxxxx",
+                "xp      px",
+                "x     x  x",
+                "xbbbbbbbbx",
+                "x        x",
+                "x        x",
+                "x        x",
+                "xp      px",
+                "xxxxxxxxxx",
+            };
 
             // Charger l'image
-            Image image = LoadImage("../assets/mur.png");
+            Image imageMur = LoadImage("../assets/mur.png");
+            Image imageBox = LoadImage("../assets/box.png");
 
             // Redimensionner l'image en 15x15
-            ImageResize(&image, 15, 15);
+            ImageResize(&imageMur, TAILLE_MUR, TAILLE_MUR / 1.2);
+            ImageResize(&imageBox, TAILLE_MUR, TAILLE_MUR / 1.2);
 
-           
-
-            std::vector<std::any> tabWall; 
-    
-            for (float x = 0; x < largeur; x+= 15)
-            {
-                auto wall = _ecs.spawn_entity();
-                _ecs.add_component<Position>(wall, {x, 0.0});
-                _ecs.add_component<Drawable>(wall, {true, LoadTextureFromImage(image)});
-                _ecs.add_component<Killable>(wall, {true});
-                _ecs.add_component<Movable>(wall, {false, 'z', 's', 'q', 'd'});
-                tabWall.push_back(wall);
-            }
-    
-            for (float x = 0; x < largeur; x+= 15)
-            {
-                auto wall = _ecs.spawn_entity();
-                _ecs.add_component<Position>(wall, {x, hauteur-tailleMur});
-                _ecs.add_component<Drawable>(wall, {true, LoadTextureFromImage(image)});
-                _ecs.add_component<Killable>(wall, {true});
-                _ecs.add_component<Movable>(wall, {false, 'z', 's', 'q', 'd'});
-                tabWall.push_back(wall);
-            }
-    
-            for (float y = 0; y < hauteur; y+= 15)
-            {
-                auto wall = _ecs.spawn_entity();
-                _ecs.add_component<Position>(wall, {0.0, y});
-                _ecs.add_component<Drawable>(wall, {true, LoadTextureFromImage(image)});
-                _ecs.add_component<Killable>(wall, {true});
-                _ecs.add_component<Movable>(wall, {false, 'z', 's', 'q', 'd'});
-                tabWall.push_back(wall);
-            }
-
-             for (float y = 0; y < hauteur; y+= 15)
-            {
-                auto wall = _ecs.spawn_entity();
-                _ecs.add_component<Position>(wall, {largeur-tailleMur, y});
-                _ecs.add_component<Drawable>(wall, {true, LoadTextureFromImage(image)});
-                _ecs.add_component<Killable>(wall, {true});
-                _ecs.add_component<Movable>(wall, {false, 'z', 's', 'q', 'd'});
-                tabWall.push_back(wall);
-            }
-            
             auto background = _ecs.spawn_entity();
             _ecs.add_component<Position>(background, {0, 0});
-            _ecs.add_component<Drawable>(background, {true, LoadTexture("../assets/background.png")});
-            _ecs.add_component<Killable>(background, {true});
-            _ecs.add_component<Movable>(background, {false, 'z', 's', 'q', 'd'});
+            _ecs.add_component<Drawable>(background, {LoadTexture("../assets/background.png")});
+           
+            //MUR{{{}}}
+            for (int i = 0; i < map.size(); i++) {
+                for (int j = 0; j < map[i].size(); j++) {
+                    if (map[i][j] != 'x') { continue; }
+                    auto wall = _ecs.spawn_entity();
+                    _ecs.add_component<Position>(wall, {float(j * TAILLE_MUR), float(i * (TAILLE_MUR / 1.2))});
+                    _ecs.add_component<Collidable>(wall, {});
+                    _ecs.add_component<Drawable>(wall, {LoadTextureFromImage(imageMur)});
+                }
+            }
 
+            //BOX
+            for (int i = 0; i < map.size(); i++) {
+                for (int j = 0; j < map[i].size(); j++) {
+                    if (map[i][j] != 'b') { continue; }
+                    auto box = _ecs.spawn_entity();
+                    _ecs.add_component<Position>(box, {float(j * TAILLE_MUR), float(i * (TAILLE_MUR / 1.2))});
+                    _ecs.add_component<Collidable>(box, {});
+                    _ecs.add_component<Drawable>(box, {LoadTextureFromImage(imageBox)});
+                }
+            }
+            //Player
+            const nbPlayer = 4;
+            const Movable playerKeys[] = [{'z','q','s','d'}, {'i','j','k','l'}, {'t','f','g','h'}, {'o','l','p','m'}int  ];
+            for (int i = 0; i < map.size(); i++) {
+                for (int j = 0; j < map[i].size(); j++) {
+                    if (map[i][j] != 'b') { continue; }
+                    auto player = _ecs.spawn_entity();
+                    _ecs.add_component<Position>(player, {float(0), float(0)});
+                    _ecs.add_component<Drawable>(player, {LoadTexture("../assets/player" + string(i) + ".png")});
+                    _ecs.add_component<Movable>(player, playerKeys[]);
+                    _ecs.add_component<Collidable>(player, {});
+                }
+            }
 
-/*
-            //box a explosé    
-            auto box = _ecs.spawn_entity();
-            _ecs.add_component<Position>(box, {0, 0});
-            _ecs.add_component<Drawable>(box, {true, LoadTexture("../assets/box.png")});
-            _ecs.add_component<Killable>(box, {true});
-            _ecs.add_component<Movable>(box, {false, 'z', 's', 'q', 'd'});
+            
 
-
-            auto player1 = _ecs.spawn_entity();
-            _ecs.add_component<Position>(player1, {0, 10});
-            _ecs.add_component<Drawable>(player1, {true, LoadTexture("../assets/player.png")});
-            _ecs.add_component<Killable>(player1, {true});
-            _ecs.add_component<Movable>(player1, {true, 'z', 's', 'q', 'd'});
-
-            auto player2 = _ecs.spawn_entity();
-            _ecs.add_component<Position>(player2, {10, 0});
-            _ecs.add_component<Drawable>(player2, {true, LoadTexture("../assets/player.png")});
-            _ecs.add_component<Killable>(player2, {true});
-            _ecs.add_component<Movable>(player2, {true, 'z', 's', 'q', 'd'});
-
-
-            // ??? initialisation des bombes pour le/les joueurs ? 
-            auto bomb = _ecs.spawn_entity();
-            _ecs.add_component<Position>(bomb, {0, 0});
-            _ecs.add_component<Drawable>(bomb, {true, LoadTexture("../assets/bomb.png")});
-            _ecs.add_component<Killable>(bomb, {true});
-            _ecs.add_component<Movable>(bomb, {false, 'z', 's', 'q', 'd'});
-
-
-*/
         }
 
         void update() {
+            // Update les entités avec le composant Movable
+            auto &movables = _ecs.get_components<Movable>();
+            auto &positions = _ecs.get_components<Position>();
 
+            for (int i = 0; i < movables.size(); i++) {
+                if (movables[i] && positions[i]) {
+                        if (IsKeyDown(movables[i]->up)) {
+                            positions[i]->y -= 1;
+                        }
+                        if (IsKeyDown(movables[i]->down)) {
+                            positions[i]->y += 1;
+                        }
+                        if (IsKeyDown(movables[i]->left)) {
+                            positions[i]->x -= 1;
+                        }
+                        if (IsKeyDown(movables[i]->right)) {
+                            positions[i]->x += 1;
+                        }
+                }
+            }
         }
 
         void render2D() {
-            
-            //BeginDrawing(); // faut pas le mettre ici sinon le programme essaye de dessiner 2 fois
-            
-            // Effacer l'écran avec une couleur de fond blanche
-            ClearBackground(WHITE);
-            
+                        
             // Dessiner les entités avec le composant Drawable
             auto &drawables = _ecs.get_components<Drawable>();
             auto &positions = _ecs.get_components<Position>();
@@ -172,7 +158,6 @@ class ProjectManager {
                 }
             }
 
-            //EndDrawing(); // faut pas le mettre ici sinon le programme essaye d'arreter de dessiner 2 fois
         }
 
 
@@ -184,6 +169,8 @@ class ProjectManager {
         void event() {
 
         }
+
+        
 
     protected:
 

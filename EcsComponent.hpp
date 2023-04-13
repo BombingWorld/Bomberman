@@ -11,31 +11,26 @@
 
     struct Drawable
     {
-        bool is_drawable;  // si l'entité peux être dessiné ou non
         Texture2D texture; // texture de l'entité
+    };
+
+    struct Killable {
+    };
+    
+    struct Collidable {
 
     };
 
-    struct Killable
-    {
-        bool is_killable; // si le joueur peux mourir ou non
+    struct Movable {
+        char up;      // si l'entité peux se déplacer en avant ou non
+        char down;    // si l'entité peux se déplacer en arrière ou non
+        char left;     // si l'entité peux se déplacer à gauche ou non
+        char right;     // si l'entité peux se déplacer à droite ou non
     };
-    
-    struct Movable
-    {
-        bool is_movable; // si l'enetité peux se déplacer ou non
-        char avant;      // si l'entité peux se déplacer en avant ou non
-        char arriere;    // si l'entité peux se déplacer en arrière ou non
-        char gauche;     // si l'entité peux se déplacer à gauche ou non
-        char droite;     // si l'entité peux se déplacer à droite ou non
-    };
-
-    
-    
 
 
 struct project_config {
-    using components_list = std::tuple<Position, Drawable, Killable, Movable>;
+    using components_list = std::tuple<Position, Drawable, Killable, Movable, Collidable>;
 };
 
 
