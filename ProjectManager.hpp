@@ -82,9 +82,7 @@ class ProjectManager {
                 "x              x",
                 "xxxxxxxxxxbbbbxx",
                 "x            b x",
-                "x .          b x",
                 "x            b x",
-                "x              x",
                 "xp            px",
                 "xxxxxxxxxxxxxxxx",
             };
@@ -99,16 +97,15 @@ class ProjectManager {
             
 
             // Redimensionner l'image en 15x15
-            ImageResize(&imageMur, TAILLE_MUR, TAILLE_MUR / 1.2);
-            ImageResize(&imageBox, TAILLE_MUR, TAILLE_MUR / 1.2);
+            ImageResize(&imageMur, TAILLE_MUR, TAILLE_MUR);
+            ImageResize(&imageBox, TAILLE_MUR, TAILLE_MUR);
             for (int i = 0; i < 4; i++)
                 ImageResize(&imagePlayer[i], TAILLE_PLAYER * 6, TAILLE_PLAYER * 4);
-            ImageResize(&imageBomb, 50, 50);
+            ImageResize(&imageBomb, 150, 50);
 
             auto background = _ecs.spawn_entity();
             _ecs.add_component<Position>(background, {0, 0});
             _ecs.add_component<Drawable>(background, {LoadTextureFromImage(imageBackground)});
-           DrawTextureRec(LoadTextureFromImage(imageBackground), {0, 0, 1080, 600}, {0, 0}, WHITE);
             //init from map
             const int NBPLAYERMAX = 4;
             int nbPlayer = 0;
@@ -117,20 +114,20 @@ class ProjectManager {
                 for (int j = 0; j < map[i].size(); j++) {
                     if (map[i][j] == 'x') {
                         auto wall = _ecs.spawn_entity();
-                        _ecs.add_component<Position>(wall, {float(j * TAILLE_MUR), float(i * (TAILLE_MUR / 1.2))});
+                        _ecs.add_component<Position>(wall, {float(j * TAILLE_MUR), float(i * (TAILLE_MUR))});
                         _ecs.add_component<Collidable>(wall, {});
                         _ecs.add_component<Drawable>(wall, {LoadTextureFromImage(imageMur)});
-                        _ecs.add_component<Size>(wall, {float(TAILLE_MUR), float(TAILLE_MUR / 1.2)});
+                        _ecs.add_component<Size>(wall, {float(TAILLE_MUR), float(TAILLE_MUR)});
                     } else if (map[i][j] == 'b') {
                         auto box = _ecs.spawn_entity();
-                        _ecs.add_component<Position>(box, {float(j * TAILLE_MUR), float(i * (TAILLE_MUR / 1.2))});
+                        _ecs.add_component<Position>(box, {float(j * TAILLE_MUR), float(i * (TAILLE_MUR))});
                         _ecs.add_component<Collidable>(box, {});
                         _ecs.add_component<Drawable>(box, {LoadTextureFromImage(imageBox)});
-                        _ecs.add_component<Size>(box, {float(TAILLE_MUR), float(TAILLE_MUR / 1.2)});
+                        _ecs.add_component<Size>(box, {float(TAILLE_MUR), float(TAILLE_MUR)});
                     } else if (map[i][j] == 'p') {
                         if (nbPlayer > NBPLAYERMAX) { break; }
                         auto player = _ecs.spawn_entity();
-                        _ecs.add_component<Position>(player, {float(j * TAILLE_MUR), float(i * (TAILLE_MUR / 1.2))});
+                        _ecs.add_component<Position>(player, {float(j * TAILLE_MUR), float(i * (TAILLE_MUR))});
                         _ecs.add_component<Drawable>(player, {LoadTextureFromImage(imagePlayer[nbPlayer])});
                         _ecs.add_component<Movable>(player, {playerKeys[nbPlayer][0], playerKeys[nbPlayer][2], playerKeys[nbPlayer][1], playerKeys[nbPlayer][3]});
                         _ecs.add_component<Collidable>(player, {});
@@ -144,7 +141,20 @@ class ProjectManager {
         }
 
         void update() {
+            auto &animables = _ecs.get_components<Animable>();
+            auto &explodables = _ecs.get_components<Explodable>();
 
+            for (int i = 0; i < animables.size() && i < explodables.size(); i++) {
+                if (animables[i] && explodables[i]) {
+                    if (explodables[i]->time > GetTime()) {
+                        int value = static_cast<int>(2 - std::floor(explodables[i]->time - GetTime()));
+                        std::cout << value << std::endl;
+                        animables[i]->x = animables[i]->offsetX * value;
+                    } else {
+                        _ecs.kill_entity(_ecs.entity_from_index(i));
+                    }
+                }
+            }
         }
 
         void event() {
@@ -195,13 +205,13 @@ class ProjectManager {
                     else
                         animables[i]->x = 0;
                 }
-                    
 
                 if (dropables[i] && positions[i] && IsKeyDown(dropables[i]->drop)) { //create bomb
                         auto bomb = _ecs.spawn_entity();
                         _ecs.add_component<Position>(bomb, { positions[i]->x - fmod(positions[i]->x, float(50)) , positions[i]->y - fmod(positions[i]->y, float(50))});
                         _ecs.add_component<Drawable>(bomb, {LoadTextureFromImage(imageBomb)});
                         _ecs.add_component<Animable>(bomb, {0,0,50,50,50,50,0,0,3,1});
+                        _ecs.add_component<Explodable>(bomb, {GetTime() + 3.0});
                 }
             }
         }
@@ -213,15 +223,17 @@ class ProjectManager {
             auto &positions = _ecs.get_components<Position>();
             auto &movables = _ecs.get_components<Movable>();
             auto &animables = _ecs.get_components<Animable>(); 
-
+            //draw map
             for (int i = 0; i < drawables.size(); i++) {
                 if (drawables[i] && positions[i] && !movables[i]) {
-                    DrawTexture(drawables[i]->texture, positions[i]->x, positions[i]->y, WHITE);
+                    (animables[i]) ? DrawTextureRec(drawables[i]->texture, {animables[i]->x, animables[i]->y, animables[i]->width, animables[i]->height},{positions[i]->x, positions[i]->y},  WHITE)
+                                    : DrawTexture(drawables[i]->texture, positions[i]->x, positions[i]->y, WHITE);
                 }
             }
             for (int i = 0; i < drawables.size(); i++) {
                 if (drawables[i] && positions[i] && movables[i]) {
-                    DrawTextureRec(drawables[i]->texture, {animables[i]->x, animables[i]->y, animables[i]->width, animables[i]->height},{positions[i]->x, positions[i]->y},  WHITE);
+                    (animables[i]) ? DrawTextureRec(drawables[i]->texture, {animables[i]->x, animables[i]->y, animables[i]->width, animables[i]->height},{positions[i]->x, positions[i]->y},  WHITE)
+                                    : DrawTexture(drawables[i]->texture, positions[i]->x, positions[i]->y, WHITE);
                 }
             }
 
