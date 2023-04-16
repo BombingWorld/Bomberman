@@ -22,15 +22,18 @@
     };
 
     struct Movable {
-        char up;      // si l'entité peux se déplacer en avant ou non
-        char down;    // si l'entité peux se déplacer en arrière ou non
-        char left;     // si l'entité peux se déplacer à gauche ou non
-        char right;     // si l'entité peux se déplacer à droite ou non
+        int up;      // si l'entité peux se déplacer en avant ou non
+        int down;    // si l'entité peux se déplacer en arrière ou non
+        int left;     // si l'entité peux se déplacer à gauche ou non
+        int right;     // si l'entité peux se déplacer à droite ou non
     };
 
+    struct Dropable {
+        int drop;
+    };
 
 struct project_config {
-    using components_list = std::tuple<Position, Drawable, Killable, Movable, Collidable>;
+    using components_list = std::tuple<Position, Drawable, Killable, Movable, Collidable, Dropable>;
 };
 
 

@@ -49,7 +49,7 @@ std::ostream &operator<<(std::ostream &os, std::optional<Component> const &c)
 template <typename Component>
 class sparse_array
 {
-
+//
 public:
     using value_type = std::optional<Component>;
     using reference_type = value_type &;
