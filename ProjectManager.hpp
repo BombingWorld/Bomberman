@@ -16,6 +16,8 @@
 
     #include "data.hpp"
 
+    #include "cmath"
+
 class ProjectManager {
     public:
 
@@ -33,10 +35,15 @@ class ProjectManager {
         * @return int
         */
         int Run()  {
+            
+
             const int screenWidth = 1080;
             const int screenHeight = 600;
+            InitWindow(screenWidth, screenHeight, "Bomberman");
 
-            InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+            // Chargement de l'image pour l'icône de fenêtre
+            Image icon = LoadImage("../assets/icon.png");
+            SetWindowIcon(icon);
 //            ToggleFullscreen();
             SetTargetFPS(30);
 
@@ -63,13 +70,13 @@ class ProjectManager {
 
             //taille du terrain
             const int TAILLE_MUR = 50;
-            const int TAILLE_PLAYER = 25;
+            const int TAILLE_PLAYER = 40;
 
             const std::vector<std::string> map = {
                 "xxxxxxxxxxxxxxxx",
-                "x             px",
-                "x   x          x",
-                "xbbbbbbbbbbbbbbx",
+                "xp            px",
+                "x   x    xx xx x",
+                "xbbbbbbbbbb bbbx",
                 "x              x",          
                 "x              x",
                 "x              x",
@@ -85,66 +92,55 @@ class ProjectManager {
             // Charger l'image
             this->imageMur = LoadImage("../assets/wall.png");
             this->imageBox = LoadImage("../assets/box.png");
-            this->imagePlayer1 = LoadImage("../assets/player1.png");
-            this->imagePlayer2 = LoadImage("../assets/player2.png");
-            this->imagePlayer3 = LoadImage("../assets/player3.png");
-            this->imagePlayer4 = LoadImage("../assets/player4.png");
+            for (int i = 0; i < 4; i++)
+                this->imagePlayer[i] = LoadImage(std::string("../assets/player" + std::to_string(i + 1) + ".png").c_str());
             this->imageBackground = LoadImage("../assets/background.png");
+            this->imageBomb = LoadImage("../assets/bomb.png");
+            
 
             // Redimensionner l'image en 15x15
             ImageResize(&imageMur, TAILLE_MUR, TAILLE_MUR / 1.2);
             ImageResize(&imageBox, TAILLE_MUR, TAILLE_MUR / 1.2);
-            ImageResize(&imagePlayer1, TAILLE_PLAYER, TAILLE_PLAYER);
-            ImageResize(&imagePlayer2, TAILLE_PLAYER, TAILLE_PLAYER);
-            ImageResize(&imagePlayer3, TAILLE_PLAYER, TAILLE_PLAYER);
-            ImageResize(&imagePlayer4, TAILLE_PLAYER, TAILLE_PLAYER);
+            for (int i = 0; i < 4; i++)
+                ImageResize(&imagePlayer[i], TAILLE_PLAYER * 6, TAILLE_PLAYER * 4);
+            ImageResize(&imageBomb, 50, 50);
 
             auto background = _ecs.spawn_entity();
             _ecs.add_component<Position>(background, {0, 0});
             _ecs.add_component<Drawable>(background, {LoadTextureFromImage(imageBackground)});
-           
-            //MUR{{{}}}
+           DrawTextureRec(LoadTextureFromImage(imageBackground), {0, 0, 1080, 600}, {0, 0}, WHITE);
+            //init from map
+            const int NBPLAYERMAX = 4;
+            int nbPlayer = 0;
+            const int playerKeys[][5] = {{KEY::Z, KEY::Q, KEY::S, KEY::D, KEY::E},{KEY::T, KEY::F, KEY::G, KEY::H, KEY::Y}, {KEY::I, KEY::J, KEY::K, KEY::L, KEY::O}, {KEY::UP, KEY::LEFT, KEY::DOWN, KEY::RIGHT, KEY::ENTER}} ;
             for (int i = 0; i < map.size(); i++) {
                 for (int j = 0; j < map[i].size(); j++) {
-                    if (map[i][j] != 'x') { continue; }
-                    auto wall = _ecs.spawn_entity();
-                    _ecs.add_component<Position>(wall, {float(j * TAILLE_MUR), float(i * (TAILLE_MUR / 1.2))});
-                    _ecs.add_component<Collidable>(wall, {});
-                    _ecs.add_component<Drawable>(wall, {LoadTextureFromImage(imageMur)});
+                    if (map[i][j] == 'x') {
+                        auto wall = _ecs.spawn_entity();
+                        _ecs.add_component<Position>(wall, {float(j * TAILLE_MUR), float(i * (TAILLE_MUR / 1.2))});
+                        _ecs.add_component<Collidable>(wall, {});
+                        _ecs.add_component<Drawable>(wall, {LoadTextureFromImage(imageMur)});
+                        _ecs.add_component<Size>(wall, {float(TAILLE_MUR), float(TAILLE_MUR / 1.2)});
+                    } else if (map[i][j] == 'b') {
+                        auto box = _ecs.spawn_entity();
+                        _ecs.add_component<Position>(box, {float(j * TAILLE_MUR), float(i * (TAILLE_MUR / 1.2))});
+                        _ecs.add_component<Collidable>(box, {});
+                        _ecs.add_component<Drawable>(box, {LoadTextureFromImage(imageBox)});
+                        _ecs.add_component<Size>(box, {float(TAILLE_MUR), float(TAILLE_MUR / 1.2)});
+                    } else if (map[i][j] == 'p') {
+                        if (nbPlayer > NBPLAYERMAX) { break; }
+                        auto player = _ecs.spawn_entity();
+                        _ecs.add_component<Position>(player, {float(j * TAILLE_MUR), float(i * (TAILLE_MUR / 1.2))});
+                        _ecs.add_component<Drawable>(player, {LoadTextureFromImage(imagePlayer[nbPlayer])});
+                        _ecs.add_component<Movable>(player, {playerKeys[nbPlayer][0], playerKeys[nbPlayer][2], playerKeys[nbPlayer][1], playerKeys[nbPlayer][3]});
+                        _ecs.add_component<Collidable>(player, {});
+                        _ecs.add_component<Dropable>(player, {playerKeys[nbPlayer][4]});
+                        _ecs.add_component<Size>(player, {float(TAILLE_PLAYER), float(TAILLE_PLAYER)});
+                        _ecs.add_component<Animable>(player, {0,0,40,40,40,40,0,0,6,4});
+                        nbPlayer++;
+                    }
                 }
-            }
-
-            //BOX
-            for (int i = 0; i < map.size(); i++) {
-                for (int j = 0; j < map[i].size(); j++) {
-                    if (map[i][j] != 'b') { continue; }
-                    auto box = _ecs.spawn_entity();
-                    _ecs.add_component<Position>(box, {float(j * TAILLE_MUR), float(i * (TAILLE_MUR / 1.2))});
-                    _ecs.add_component<Collidable>(box, {});
-                    _ecs.add_component<Drawable>(box, {LoadTextureFromImage(imageBox)});
-                }
-            }
-            //Player
-            const int nbPlayer = 4;
-            const int playerKeys[][5] = {{KEY::Z, KEY::Q, KEY::S, KEY::D, KEY::E}} ;
-            for (int i = 0, p = 0; i < map.size(); i++) {
-                for (int j = 0; j < map[i].size(); j++) {
-                    if (map[i][j] != 'p') { continue; }
-                    if (p > nbPlayer) { break; }
-
-                    auto player = _ecs.spawn_entity();
-
-                    _ecs.add_component<Position>(player, {float(j * TAILLE_MUR), float(i * (TAILLE_MUR / 1.2))});
-                    _ecs.add_component<Drawable>(player, {LoadTextureFromImage(imagePlayer1)});
-                    _ecs.add_component<Movable>(player, {playerKeys[p][0], playerKeys[p][2], playerKeys[p][1], playerKeys[p][3]});
-                    _ecs.add_component<Collidable>(player, {});
-                    _ecs.add_component<Dropable>(player, {playerKeys[0][4]});
-                }
-            }
-
-
-            
-
+            }            
         }
 
         void update() {
@@ -152,57 +148,63 @@ class ProjectManager {
         }
 
         void event() {
-
-//            if (IsKeyPressed(KEY::Z))
-
             // Update les entités avec le composant Movable
-            auto &movables = _ecs.get_components<Movable>();
-            auto &positions = _ecs.get_components<Position>();
-            auto &dropables = _ecs.get_components<Dropable>();
+            auto &positions =  _ecs.get_components<Position>();
+            auto &sizes     =  _ecs.get_components<Size>();            
 
-            
+            auto &movables  =  _ecs.get_components<Movable>();
+            auto &dropables =  _ecs.get_components<Dropable>();
+            auto &collidables =  _ecs.get_components<Collidable>();
+            auto &animables = _ecs.get_components<Animable>();
 
-            for (int i = 0; i < movables.size() && i < movables.size(); i++) {
+            for (int i = 0; i < movables.size() && i < positions.size(); i++) {
+                Position velocity = {0, 0};
                 if (movables[i] && positions[i]) {
-                    std::cout << "idx=" << i << std::endl;
-                    std::cout << "KEY::Z=" << KEY::Z << " == " << "movables[i]->up=" << movables[i]->up << std::endl;
-                    if (IsKeyDown(KEY::Z))
-                        std::cout << "key Z pressed" << std::endl;
                     if (IsKeyDown(movables[i]->up)) {
-                        std::cout << ">" << positions[i]->y << std::endl;
-                        positions[i]->y -= 5;
+                       velocity.y = -5;
                     }
-                     if (IsKeyDown(movables[i]->down)) {
-                        positions[i]->y += 5;
+                    if (IsKeyDown(movables[i]->down)) {
+                        velocity.y = +5;
                     }
                     if (IsKeyDown(movables[i]->left)) {
-                        positions[i]->x -= 5;
+                        velocity.x = -5;
                     }
                     if (IsKeyDown(movables[i]->right)) {
-                        positions[i]->x += 5;
+                        velocity.x = 5;
                     }
+                } 
 
-                    if (IsKeyDown(movables[i]->right)) {
-                        positions[i]->x += 5;
-                    }
+                for (int j = 0; j < collidables.size() && j < positions.size() && j < sizes. size(); j++) {
+                    if (i != j && CheckCollisionRecs({positions[i]->x + velocity.x , positions[i]->y, sizes[i]->width, sizes[i]->height},
+                                                    {positions[j]->x ,positions[j]->y, sizes[j]->width, sizes[j]->height}))
+                        velocity.x = 0;
+                    if (i != j && CheckCollisionRecs({positions[i]->x, positions[i]->y + velocity.y, sizes[i]->width, sizes[i]->height},
+                                                    {positions[j]->x ,positions[j]->y, sizes[j]->width, sizes[j]->height}))
+                        velocity.y = 0;
+                };
+                positions[i]->x += velocity.x;
+                positions[i]->y += velocity.y;
+                if (movables[i] && velocity.x != 0)
+                    animables[i]->y = animables[i]->offsetY * ((velocity.x < 0)? 1: 2);
+                if (movables[i] && velocity.y != 0)
+                    animables[i]->y = animables[i]->offsetY * ((velocity.y < 0)? 0: 3);
 
-                    if (IsKeyDown(dropables[i]->drop))
-                    {
-                        // creation image bombe
-                        Image imageBomb = LoadImage("../assets/dogs.png");
-                        ImageResize(&imageBomb, 50, 50);
-
-
-                        auto bomb = _ecs.spawn_entity();
-                        _ecs.add_component<Position>(bomb, { positions[i]->x , positions[i]->y });
-                        _ecs.add_component<Drawable>(bomb, {LoadTextureFromImage(imageBomb)});
-                        
-                    }
+                if ((velocity.x != 0 || velocity.y != 0) && i < animables.size() && animables[i] ) {
+                    if (animables[i]->frameX < animables[i]->maxFrameX)
+                        animables[i]->x += animables[i]->offsetX;
+                    else
+                        animables[i]->x = 0;
+                }
                     
+
+                if (dropables[i] && positions[i] && IsKeyDown(dropables[i]->drop)) { //create bomb
+                        auto bomb = _ecs.spawn_entity();
+                        _ecs.add_component<Position>(bomb, { positions[i]->x - fmod(positions[i]->x, float(50)) , positions[i]->y - fmod(positions[i]->y, float(50))});
+                        _ecs.add_component<Drawable>(bomb, {LoadTextureFromImage(imageBomb)});
+                        _ecs.add_component<Animable>(bomb, {0,0,50,50,50,50,0,0,3,1});
                 }
             }
         }
-
 
         void render2D() {
                         
@@ -210,12 +212,16 @@ class ProjectManager {
             auto &drawables = _ecs.get_components<Drawable>();
             auto &positions = _ecs.get_components<Position>();
             auto &movables = _ecs.get_components<Movable>();
+            auto &animables = _ecs.get_components<Animable>(); 
 
             for (int i = 0; i < drawables.size(); i++) {
-                if (drawables[i] && positions[i]) {
-//                    if (movables[i])
-//                        std::cout << positions[i]->y << std::endl;                    
+                if (drawables[i] && positions[i] && !movables[i]) {
                     DrawTexture(drawables[i]->texture, positions[i]->x, positions[i]->y, WHITE);
+                }
+            }
+            for (int i = 0; i < drawables.size(); i++) {
+                if (drawables[i] && positions[i] && movables[i]) {
+                    DrawTextureRec(drawables[i]->texture, {animables[i]->x, animables[i]->y, animables[i]->width, animables[i]->height},{positions[i]->x, positions[i]->y},  WHITE);
                 }
             }
 
@@ -253,11 +259,10 @@ class ProjectManager {
     protected:
         Image imageMur;
         Image imageBox;
-        Image imagePlayer1;
-        Image imagePlayer2;
-        Image imagePlayer3;
-        Image imagePlayer4;
+        Image imagePlayer[4];
         Image imageBackground;
+        Image imageBomb;
+
 };
 
 #endif /* !ECS_COMPONENT_HPP_ */

@@ -7,6 +7,7 @@
     struct Position {
         float x;    // position de l'entité en x
         float y;    // position de l'entité en y
+        
     };
 
     struct Drawable
@@ -32,8 +33,26 @@
         int drop;
     };
 
+    struct Size {
+        float width;
+        float height;
+    };
+
+    struct Animable {
+        float x;
+        float y;
+        float width;
+        float height;
+        float offsetX;
+        float offsetY;
+        float frameX;
+        float frameY;
+        float maxFrameX;
+        float maxFrameY;
+    };
+
 struct project_config {
-    using components_list = std::tuple<Position, Drawable, Killable, Movable, Collidable, Dropable>;
+    using components_list = std::tuple<Position, Drawable, Killable, Movable, Collidable, Dropable, Size, Animable>;
 };
 
 
