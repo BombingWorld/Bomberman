@@ -54,8 +54,13 @@
     struct Explodable {
         double time;
     };
+
+    struct Power {
+        unsigned int range;
+    };
+
 struct project_config {
-    using components_list = std::tuple<Position, Drawable, Killable, Movable, Collidable, Dropable, Size, Animable, Explodable>;
+    using components_list = std::tuple<Position, Drawable, Killable, Movable, Collidable, Dropable, Size, Animable, Explodable, Power>;
 };
 
 

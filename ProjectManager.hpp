@@ -37,7 +37,7 @@ class ProjectManager {
         int Run()  {
             
 
-            const int screenWidth = 1080;
+            const int screenWidth = 800;
             const int screenHeight = 600;
             InitWindow(screenWidth, screenHeight, "Bomberman");
 
@@ -68,32 +68,15 @@ class ProjectManager {
 
         void init() {
 
-            //taille du terrain
-            const int TAILLE_MUR = 50;
-            const int TAILLE_PLAYER = 40;
-
-            const std::vector<std::string> map = {
-                "xxxxxxxxxxxxxxxx",
-                "xp            px",
-                "x   x    xx xx x",
-                "xbbbbbbbbbb bbbx",
-                "x              x",          
-                "x              x",
-                "x              x",
-                "xxxxxxxxxxbbbbxx",
-                "x            b x",
-                "x            b x",
-                "xp            px",
-                "xxxxxxxxxxxxxxxx",
-            };
-
             // Charger l'image
             this->imageMur = LoadImage("../assets/wall.png");
             this->imageBox = LoadImage("../assets/box.png");
             for (int i = 0; i < 4; i++)
                 this->imagePlayer[i] = LoadImage(std::string("../assets/player" + std::to_string(i + 1) + ".png").c_str());
-            this->imageBackground = LoadImage("../assets/background.png");
+            this->imageBackground = LoadImage("../assets/lava.png");
             this->imageBomb = LoadImage("../assets/bomb.png");
+            this->imageExplosion = LoadImage("../assets/imageExplosion.png");
+            
             
 
             // Redimensionner l'image en 15x15
@@ -134,6 +117,7 @@ class ProjectManager {
                         _ecs.add_component<Dropable>(player, {playerKeys[nbPlayer][4]});
                         _ecs.add_component<Size>(player, {float(TAILLE_PLAYER), float(TAILLE_PLAYER)});
                         _ecs.add_component<Animable>(player, {0,0,40,40,40,40,0,0,6,4});
+                        _ecs.add_component<Power>(player, {1});
                         nbPlayer++;
                     }
                 }
@@ -143,14 +127,36 @@ class ProjectManager {
         void update() {
             auto &animables = _ecs.get_components<Animable>();
             auto &explodables = _ecs.get_components<Explodable>();
+            auto &positions = _ecs.get_components<Position>();
+            auto &powers = _ecs.get_components<Power>();
+            auto explosion = _ecs.spawn_entity();
 
             for (int i = 0; i < animables.size() && i < explodables.size(); i++) {
                 if (animables[i] && explodables[i]) {
                     if (explodables[i]->time > GetTime()) {
                         int value = static_cast<int>(2 - std::floor(explodables[i]->time - GetTime()));
-                        std::cout << value << std::endl;
                         animables[i]->x = animables[i]->offsetX * value;
                     } else {
+                        // break boxes
+                        std::cout << positions[i]->x << " " << positions[i]->y << std::endl;
+                        // create midle
+                        while (false);
+                        //create side
+                        for (int compass = 0; compass < 4; compass++) {
+                            for (int range = 0; range < powers[i]->range; range++) {
+                                auto fire = _ecs.spawn_entity();
+                                int bombX = (bombVar[compass] / 10);
+                                int bombY = (bombVar[compass] % 10);
+                                int bombR = (range * 50);
+                                std::cout << "bX" << bombX << "bY" << bombY << "br" << bombR << std::endl;
+                                std::cout << "> " << positions[i]->x + ( (bombVar[compass] / 10) * (range * 50)) << " " << positions[i]->y + ((bombVar[compass] % 10) * range * 50) << std::endl;
+                                _ecs.add_component<Position>(fire, { positions[i]->x + ((bombVar[compass] / 10) * range * 50),
+                                                                    positions[i]->y + ((bombVar[compass] % 10) * range * 50)});
+                                _ecs.add_component<Drawable>(fire, {LoadTextureFromImage(imageBomb)});
+                                _ecs.add_component<Animable>(fire, {0,0,50,50,50,50,0,0,3,1});
+                                _ecs.add_component<Power>(fire, {powers[i]->range});
+                            }
+                        }
                         _ecs.kill_entity(_ecs.entity_from_index(i));
                     }
                 }
@@ -166,6 +172,7 @@ class ProjectManager {
             auto &dropables =  _ecs.get_components<Dropable>();
             auto &collidables =  _ecs.get_components<Collidable>();
             auto &animables = _ecs.get_components<Animable>();
+            auto &powers = _ecs.get_components<Power>();
 
             for (int i = 0; i < movables.size() && i < positions.size(); i++) {
                 Position velocity = {0, 0};
@@ -206,12 +213,14 @@ class ProjectManager {
                         animables[i]->x = 0;
                 }
 
-                if (dropables[i] && positions[i] && IsKeyDown(dropables[i]->drop)) { //create bomb
+                if (dropables[i] && positions[i] && powers[i] && IsKeyDown(dropables[i]->drop)) { //create bomb
                         auto bomb = _ecs.spawn_entity();
                         _ecs.add_component<Position>(bomb, { positions[i]->x - fmod(positions[i]->x, float(50)) , positions[i]->y - fmod(positions[i]->y, float(50))});
                         _ecs.add_component<Drawable>(bomb, {LoadTextureFromImage(imageBomb)});
                         _ecs.add_component<Animable>(bomb, {0,0,50,50,50,50,0,0,3,1});
                         _ecs.add_component<Explodable>(bomb, {GetTime() + 3.0});
+                        _ecs.add_component<Power>(bomb, {powers[i]->range});
+                        
                 }
             }
         }
@@ -274,6 +283,7 @@ class ProjectManager {
         Image imagePlayer[4];
         Image imageBackground;
         Image imageBomb;
+        Image imageExplosion;
 
 };
 

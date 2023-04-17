@@ -13,4 +13,24 @@ enum KEY {
     RIGHT = KEY_RIGHT, SHIFT = KEY_LEFT_SHIFT, CTRL = KEY_LEFT_CONTROL,
 };
 
+const int TAILLE_MUR = 50;
+const int TAILLE_PLAYER = 40;
+
+const std::vector<std::string> map = {
+    "xxxxxxxxxxxxxxxx",
+    "x              x",
+    "x   bbbbbxx xx x",
+    "xbbbbbbbbbb bbbx",
+    "x   bbbbb      x",          
+    "x    p         x",
+    "x    x         x",
+    "xxxxxxxxxxbbbbxx",
+    "x            b x",
+    "x            b x",
+    "xp     p      px",
+    "xxxxxxxxxxxxxxxx",
+};
+
+const int bombVar[] = {-10, -1, 1, 10};
+
 #endif /* !DATA_HPP_ */
