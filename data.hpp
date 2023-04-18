@@ -13,6 +13,10 @@ enum KEY {
     RIGHT = KEY_RIGHT, SHIFT = KEY_LEFT_SHIFT, CTRL = KEY_LEFT_CONTROL,
 };
 
+enum TYPE {
+    WALL, BOX
+};
+
 const int TAILLE_MUR = 50;
 const int TAILLE_PLAYER = 40;
 

@@ -47,7 +47,10 @@ class ProjectManager {
 //            ToggleFullscreen();
             SetTargetFPS(30);
 
+
+
             this->init();
+
 
             while (!WindowShouldClose()) { // Detect window close button or ESC key
                 this->update();
@@ -60,14 +63,42 @@ class ProjectManager {
                     //DrawText ("Congrats! You created your first window!", 190, 200, 20,(Color){LIGHTGRAY});
                 EndDrawing();
             }
+            
+            CloseAudioDevice();
             CloseWindow();
             return 0;
         }
 
 //////////////////////////////////////////////////////////////////////////////////////////////
+        //fenetre menu 
+        void menu() {
+
+            while (true) { // Detect window close button or ESC key
+                this->update();
+            
+                BeginDrawing();
+                    // affichage 
+
+                    if(/*cliquer */false)
+                        {
+                            EndDrawing();
+                            return;
+                        }
+                EndDrawing();
+            }
+
+        }   
 
         void init() {
 
+            //musique 
+            InitAudioDevice();              // Initialize audio device
+            Music music = LoadMusicStream("../assets/music/musicFon.mp3");
+            PlayMusicStream(music);
+            SetMusicVolume(music, 0.5f); 
+            
+
+            
             // Charger l'image
             this->imageMur = LoadImage("../assets/wall.png");
             this->imageBox = LoadImage("../assets/box.png");
@@ -107,6 +138,8 @@ class ProjectManager {
                         _ecs.add_component<Collidable>(box, {});
                         _ecs.add_component<Drawable>(box, {LoadTextureFromImage(imageBox)});
                         _ecs.add_component<Size>(box, {float(TAILLE_MUR), float(TAILLE_MUR)});
+                        _ecs.add_component<Killable>(box, {});
+
                     } else if (map[i][j] == 'p') {
                         if (nbPlayer > NBPLAYERMAX) { break; }
                         auto player = _ecs.spawn_entity();
@@ -129,32 +162,26 @@ class ProjectManager {
             auto &explodables = _ecs.get_components<Explodable>();
             auto &positions = _ecs.get_components<Position>();
             auto &powers = _ecs.get_components<Power>();
-            auto explosion = _ecs.spawn_entity();
+            auto &killables = _ecs.get_components<Killable>();
 
             for (int i = 0; i < animables.size() && i < explodables.size(); i++) {
-                if (animables[i] && explodables[i]) {
+                if (animables[i] && explodables[i] && positions[i] && powers[i]) {
+                    std::cout << 1 << std::endl;
                     if (explodables[i]->time > GetTime()) {
                         int value = static_cast<int>(2 - std::floor(explodables[i]->time - GetTime()));
                         animables[i]->x = animables[i]->offsetX * value;
                     } else {
-                        // break boxes
-                        std::cout << positions[i]->x << " " << positions[i]->y << std::endl;
-                        // create midle
-                        while (false);
-                        //create side
                         for (int compass = 0; compass < 4; compass++) {
-                            for (int range = 0; range < powers[i]->range; range++) {
-                                auto fire = _ecs.spawn_entity();
-                                int bombX = (bombVar[compass] / 10);
-                                int bombY = (bombVar[compass] % 10);
-                                int bombR = (range * 50);
-                                std::cout << "bX" << bombX << "bY" << bombY << "br" << bombR << std::endl;
-                                std::cout << "> " << positions[i]->x + ( (bombVar[compass] / 10) * (range * 50)) << " " << positions[i]->y + ((bombVar[compass] % 10) * range * 50) << std::endl;
-                                _ecs.add_component<Position>(fire, { positions[i]->x + ((bombVar[compass] / 10) * range * 50),
-                                                                    positions[i]->y + ((bombVar[compass] % 10) * range * 50)});
-                                _ecs.add_component<Drawable>(fire, {LoadTextureFromImage(imageBomb)});
-                                _ecs.add_component<Animable>(fire, {0,0,50,50,50,50,0,0,3,1});
-                                _ecs.add_component<Power>(fire, {powers[i]->range});
+                            for (int range = 1; range <= powers[i]->range; range++) {
+                                Position firePos = {positions[i]->x + ((bombVar[compass] / 10) * range * 50), positions[i]->y + ((bombVar[compass] % 10) * range * 50)};
+                                //remove erverything
+                                for (int j = 0; j < positions.size() && j < killables.size(); j++) {
+                                    if (positions[j] && killables[j] && i != j
+                                        && firePos.x == (positions[j]->x - fmod(positions[j]->x, float(50)))
+                                        && firePos.y == (positions[j]->y - fmod(positions[j]->y, float(50)))) {
+                                        _ecs.kill_entity(_ecs.entity_from_index(j));
+                                    }
+                                }
                             }
                         }
                         _ecs.kill_entity(_ecs.entity_from_index(i));
@@ -220,7 +247,6 @@ class ProjectManager {
                         _ecs.add_component<Animable>(bomb, {0,0,50,50,50,50,0,0,3,1});
                         _ecs.add_component<Explodable>(bomb, {GetTime() + 3.0});
                         _ecs.add_component<Power>(bomb, {powers[i]->range});
-                        
                 }
             }
         }

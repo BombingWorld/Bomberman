@@ -3,6 +3,7 @@
 
     #include <tuple>
     #include "raylib.h"
+    #include "data.hpp"
 
     struct Position {
         float x;    // position de l'entité en x
@@ -21,7 +22,6 @@
     struct Collidable {
 
     };
-
     struct Movable {
         int up;      // si l'entité peux se déplacer en avant ou non
         int down;    // si l'entité peux se déplacer en arrière ou non
