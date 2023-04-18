@@ -10,6 +10,6 @@
 - [ ] animation End game
 - [ ] Menu
 - [ ] Bonus
-- [x] Makefile/cmake
+- [x] Cmake
 - [x] Librairies Raylib
 - [x] README.MD

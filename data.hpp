@@ -35,6 +35,6 @@ const std::vector<std::string> map = {
     "xxxxxxxxxxxxxxxx",
 };
 
-const int bombVar[] = {-10, -1, 1, 10};
+const int bombVar[] = {0, -10, -1, 1, 10};
 
 #endif /* !DATA_HPP_ */

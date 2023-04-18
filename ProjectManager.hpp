@@ -106,7 +106,7 @@ class ProjectManager {
                 this->imagePlayer[i] = LoadImage(std::string("../assets/player" + std::to_string(i + 1) + ".png").c_str());
             this->imageBackground = LoadImage("../assets/lava.png");
             this->imageBomb = LoadImage("../assets/bomb.png");
-            this->imageExplosion = LoadImage("../assets/imageExplosion.png");
+            this->imageFire = LoadImage("../assets/fire.png");
             
             
 
@@ -116,6 +116,7 @@ class ProjectManager {
             for (int i = 0; i < 4; i++)
                 ImageResize(&imagePlayer[i], TAILLE_PLAYER * 6, TAILLE_PLAYER * 4);
             ImageResize(&imageBomb, 150, 50);
+            ImageResize(&imageFire, 250, 200);
 
            /* auto background = _ecs.spawn_entity();
             _ecs.add_component<Position>(background, {0, 0});
@@ -164,6 +165,7 @@ class ProjectManager {
             auto &positions = _ecs.get_components<Position>();
             auto &powers = _ecs.get_components<Power>();
             auto &killables = _ecs.get_components<Killable>();
+            auto &burnables = _ecs.get_components<Burnable>();
 
             for (int i = 0; i < animables.size() && i < explodables.size(); i++) {
                 if (animables[i] && explodables[i] && positions[i] && powers[i]) {
@@ -172,7 +174,7 @@ class ProjectManager {
                         int value = static_cast<int>(2 - std::floor(explodables[i]->time - GetTime()));
                         animables[i]->x = animables[i]->offsetX * value;
                     } else {
-                        for (int compass = 0; compass < 4; compass++) {
+                        for (int compass = 0; compass < 5; compass++) {
                             for (int range = 1; range <= powers[i]->range; range++) {
                                 Position firePos = {positions[i]->x + ((bombVar[compass] / 10) * range * 50), positions[i]->y + ((bombVar[compass] % 10) * range * 50)};
                                 //remove erverything
@@ -183,10 +185,34 @@ class ProjectManager {
                                         _ecs.kill_entity(_ecs.entity_from_index(j));
                                     }
                                 }
+                                auto fire = _ecs.spawn_entity();
+                                _ecs.add_component<Position>(fire, {firePos.x, firePos.y});
+                                _ecs.add_component<Drawable>(fire, {LoadTextureFromImage(imageFire)});
+                                if (compass == 0)
+                                    _ecs.add_component<Animable>(fire, {0,0,50,50,50,50,0,0,1,1});
+                                else
+                                    _ecs.add_component<Animable>(fire, {100,0,50,50,50,50,0,0,1,1});
+                                switch (compass) {
+                                    case 1:
+                                        _ecs.add_component<Rotate>(fire, {180}); break;
+                                    case 2:
+                                        _ecs.add_component<Rotate>(fire, {270}); break;
+                                    case 3:
+                                        _ecs.add_component<Rotate>(fire, {90}); break;
+                                    case 4:
+                                        _ecs.add_component<Rotate>(fire, {0}); break;
+                                }
+                                _ecs.add_component<Burnable>(fire, {GetTime() + 1.0});
+                                _ecs.add_component<Power>(fire, {powers[i]->range});
                             }
                         }
                         _ecs.kill_entity(_ecs.entity_from_index(i));
                     }
+                }
+            }
+            for (int i = 0; i < burnables.size(); i++) {
+                if (burnables[i] && burnables[i]->time < GetTime()) {
+                    _ecs.kill_entity(_ecs.entity_from_index(i));
                 }
             }
         }
@@ -259,11 +285,19 @@ class ProjectManager {
             auto &positions = _ecs.get_components<Position>();
             auto &movables = _ecs.get_components<Movable>();
             auto &animables = _ecs.get_components<Animable>(); 
+            auto &rotates = _ecs.get_components<Rotate>();
+            auto &burnables = _ecs.get_components<Burnable>();
             //draw map
-            for (int i = 0; i < drawables.size(); i++) {
-                if (drawables[i] && positions[i] && !movables[i]) {
-                    (animables[i]) ? DrawTextureRec(drawables[i]->texture, {animables[i]->x, animables[i]->y, animables[i]->width, animables[i]->height},{positions[i]->x, positions[i]->y},  WHITE)
-                                    : DrawTexture(drawables[i]->texture, positions[i]->x, positions[i]->y, WHITE);
+            for (int i = 0; i < drawables.size() && i < positions.size() &&  i < rotates.size() && i < animables.size() && i < burnables.size(); i++) {
+                if (drawables[i] && i < positions.size() && positions[i] && !movables[i]) {
+                    if (i < animables.size() && animables[i]) {
+                        if (rotates[i])
+                            DrawTexturePro(drawables[i]->texture, {animables[i]->x, animables[i]->y, animables[i]->width, animables[i]->height}, {positions[i]->x + 25, positions[i]->y + 25, float(animables[i]->offsetX), float(animables[i]->offsetY)}, {25,25}, rotates[i]->value, WHITE);
+                        else 
+                            DrawTextureRec(drawables[i]->texture, {animables[i]->x, animables[i]->y, animables[i]->width, animables[i]->height},{positions[i]->x, positions[i]->y},  WHITE);
+                    } else {
+                        DrawTexture(drawables[i]->texture, positions[i]->x, positions[i]->y, WHITE);
+                    }
                 }
             }
             for (int i = 0; i < drawables.size(); i++) {
@@ -310,7 +344,7 @@ class ProjectManager {
         Image imagePlayer[4];
         Image imageBackground;
         Image imageBomb;
-        Image imageExplosion;
+        Image imageFire;
 
 };
 

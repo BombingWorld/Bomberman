@@ -59,8 +59,16 @@
         unsigned int range;
     };
 
+    struct Burnable {
+        double time;
+    };
+
+    struct Rotate {
+        int value;
+    };
+
 struct project_config {
-    using components_list = std::tuple<Position, Drawable, Killable, Movable, Collidable, Dropable, Size, Animable, Explodable, Power>;
+    using components_list = std::tuple<Position, Drawable, Killable, Movable, Collidable, Dropable, Size, Animable, Explodable, Power, Burnable, Rotate>;
 };
 
 
