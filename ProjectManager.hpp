@@ -117,9 +117,9 @@ class ProjectManager {
                 ImageResize(&imagePlayer[i], TAILLE_PLAYER * 6, TAILLE_PLAYER * 4);
             ImageResize(&imageBomb, 150, 50);
 
-            auto background = _ecs.spawn_entity();
+           /* auto background = _ecs.spawn_entity();
             _ecs.add_component<Position>(background, {0, 0});
-            _ecs.add_component<Drawable>(background, {LoadTextureFromImage(imageBackground)});
+            _ecs.add_component<Drawable>(background, {LoadTextureFromImage(imageBackground)});*/
             //init from map
             const int NBPLAYERMAX = 4;
             int nbPlayer = 0;
@@ -151,6 +151,7 @@ class ProjectManager {
                         _ecs.add_component<Size>(player, {float(TAILLE_PLAYER), float(TAILLE_PLAYER)});
                         _ecs.add_component<Animable>(player, {0,0,40,40,40,40,0,0,6,4});
                         _ecs.add_component<Power>(player, {1});
+                        _ecs.add_component<Killable>(player, {});
                         nbPlayer++;
                     }
                 }
@@ -219,10 +220,10 @@ class ProjectManager {
                 } 
 
                 for (int j = 0; j < collidables.size() && j < positions.size() && j < sizes. size(); j++) {
-                    if (i != j && CheckCollisionRecs({positions[i]->x + velocity.x , positions[i]->y, sizes[i]->width, sizes[i]->height},
+                    if (i != j && collidables[j] && CheckCollisionRecs({positions[i]->x + velocity.x , positions[i]->y, sizes[i]->width, sizes[i]->height},
                                                     {positions[j]->x ,positions[j]->y, sizes[j]->width, sizes[j]->height}))
                         velocity.x = 0;
-                    if (i != j && CheckCollisionRecs({positions[i]->x, positions[i]->y + velocity.y, sizes[i]->width, sizes[i]->height},
+                    if (i != j && collidables[j] && CheckCollisionRecs({positions[i]->x, positions[i]->y + velocity.y, sizes[i]->width, sizes[i]->height},
                                                     {positions[j]->x ,positions[j]->y, sizes[j]->width, sizes[j]->height}))
                         velocity.y = 0;
                 };
