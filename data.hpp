@@ -22,16 +22,16 @@ const int TAILLE_PLAYER = 40;
 
 const std::vector<std::string> map = {
     "xxxxxxxxxxxxxxxx",
-    "x              x",
-    "x   bbbbbxx xx x",
-    "xbbbbbbbbbb bbbx",
-    "x   bbbbb      x",          
-    "x    p         x",
-    "x    x         x",
+    "xpb     b b p bx",
+    "x b     b b  b x",
+    "x b     b b  b x",
+    "x b     b b  b x",          
+    "x b      b   b x",
+    "x b      b   b x",
     "xxxxxxxxxxbbbbxx",
+    "x    p  p    b x",
     "x            b x",
-    "x            b x",
-    "xp     p      px",
+    "x              x",
     "xxxxxxxxxxxxxxxx",
 };
 

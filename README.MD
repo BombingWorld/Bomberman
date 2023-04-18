@@ -4,8 +4,8 @@
 - [x] animation Bomb
 - [x] animation Player
 - [ ] animation Explosion
-- [ ] kill player
-- [ ] kill box 
+- [x] kill player
+- [x] kill box 
 - [ ] animation kill
 - [ ] animation End game
 - [ ] Menu
