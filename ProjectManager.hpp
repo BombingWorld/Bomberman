@@ -121,8 +121,10 @@ class ProjectManager {
            /* auto background = _ecs.spawn_entity();
             _ecs.add_component<Position>(background, {0, 0});
             _ecs.add_component<Drawable>(background, {LoadTextureFromImage(imageBackground)});*/
+
             //init from map
             const int NBPLAYERMAX = 4;
+            const std::vector<std::string> map = getMap();
             int nbPlayer = 0;
             const int playerKeys[][5] = {{KEY::Z, KEY::Q, KEY::S, KEY::D, KEY::E},{KEY::T, KEY::F, KEY::G, KEY::H, KEY::Y}, {KEY::I, KEY::J, KEY::K, KEY::L, KEY::O}, {KEY::UP, KEY::LEFT, KEY::DOWN, KEY::RIGHT, KEY::ENTER}} ;
             for (int i = 0; i < map.size(); i++) {
@@ -151,7 +153,7 @@ class ProjectManager {
                         _ecs.add_component<Dropable>(player, {playerKeys[nbPlayer][4]});
                         _ecs.add_component<Size>(player, {float(TAILLE_PLAYER), float(TAILLE_PLAYER)});
                         _ecs.add_component<Animable>(player, {0,0,40,40,40,40,0,0,6,4});
-                        _ecs.add_component<Power>(player, {1});
+                        _ecs.add_component<Power>(player, {10});
                         _ecs.add_component<Killable>(player, {});
                         nbPlayer++;
                     }
@@ -188,20 +190,8 @@ class ProjectManager {
                                 auto fire = _ecs.spawn_entity();
                                 _ecs.add_component<Position>(fire, {firePos.x, firePos.y});
                                 _ecs.add_component<Drawable>(fire, {LoadTextureFromImage(imageFire)});
-                                if (compass == 0)
-                                    _ecs.add_component<Animable>(fire, {0,0,50,50,50,50,0,0,1,1});
-                                else
-                                    _ecs.add_component<Animable>(fire, {100,0,50,50,50,50,0,0,1,1});
-                                switch (compass) {
-                                    case 1:
-                                        _ecs.add_component<Rotate>(fire, {180}); break;
-                                    case 2:
-                                        _ecs.add_component<Rotate>(fire, {270}); break;
-                                    case 3:
-                                        _ecs.add_component<Rotate>(fire, {90}); break;
-                                    case 4:
-                                        _ecs.add_component<Rotate>(fire, {0}); break;
-                                }
+                                (compass == 0) ? _ecs.add_component<Animable>(fire, {0,0,50,50,50,50,0,0,1,1})
+                                               : _ecs.add_component<Animable>(fire, {100,0,50,50,50,50,0,0,1,1});
                                 _ecs.add_component<Burnable>(fire, {GetTime() + 1.0});
                                 _ecs.add_component<Power>(fire, {powers[i]->range});
                             }
@@ -285,19 +275,11 @@ class ProjectManager {
             auto &positions = _ecs.get_components<Position>();
             auto &movables = _ecs.get_components<Movable>();
             auto &animables = _ecs.get_components<Animable>(); 
-            auto &rotates = _ecs.get_components<Rotate>();
-            auto &burnables = _ecs.get_components<Burnable>();
             //draw map
-            for (int i = 0; i < drawables.size() && i < positions.size() &&  i < rotates.size() && i < animables.size() && i < burnables.size(); i++) {
-                if (drawables[i] && i < positions.size() && positions[i] && !movables[i]) {
-                    if (i < animables.size() && animables[i]) {
-                        if (rotates[i])
-                            DrawTexturePro(drawables[i]->texture, {animables[i]->x, animables[i]->y, animables[i]->width, animables[i]->height}, {positions[i]->x + 25, positions[i]->y + 25, float(animables[i]->offsetX), float(animables[i]->offsetY)}, {25,25}, rotates[i]->value, WHITE);
-                        else 
-                            DrawTextureRec(drawables[i]->texture, {animables[i]->x, animables[i]->y, animables[i]->width, animables[i]->height},{positions[i]->x, positions[i]->y},  WHITE);
-                    } else {
-                        DrawTexture(drawables[i]->texture, positions[i]->x, positions[i]->y, WHITE);
-                    }
+            for (int i = 0; i < drawables.size(); i++) {
+                if (drawables[i] && positions[i] && !movables[i]) {
+                    (animables[i]) ? DrawTextureRec(drawables[i]->texture, {animables[i]->x, animables[i]->y, animables[i]->width, animables[i]->height},{positions[i]->x, positions[i]->y},  WHITE)
+                                    : DrawTexture(drawables[i]->texture, positions[i]->x, positions[i]->y, WHITE);
                 }
             }
             for (int i = 0; i < drawables.size(); i++) {
@@ -306,6 +288,70 @@ class ProjectManager {
                                     : DrawTexture(drawables[i]->texture, positions[i]->x, positions[i]->y, WHITE);
                 }
             }
+
+        }
+
+
+        std::vector<std::string> getMap() {
+            
+            std::vector<std::vector<std::string>> map = {};
+
+            map.push_back(
+                {   
+                "xxxxxxxxxxxxxxxx",
+                "xp bbbbxbbbbb px",
+                "x  bbbbxbbbbb  x",
+                "xbbbbbbxbbbbbbbx",
+                "xbbb bbxbbb bbbx",          
+                "xxxxxxbbbxxxxxxx",
+                "xbbbbbbxbbbbbbbx",
+                "xbbb bbxbbb bbbx",
+                "xbbbbbbxbbbbbbbx",
+                "x  bbbbxbbbbb  x",
+                "xp bbbbxbbbbb px",
+                "xxxxxxxxxxxxxxxx"}
+            );
+
+            map.push_back(
+            {
+                "xxxxxxxxxxxxxxxx",
+                "x    b  x   b px",
+                "x    b  x   x  x",
+                "xbbbbb  xbbbxxxbx",
+                "x xxxxxxx   x  x",          
+                "x       x   b  x",
+                "xxxxxxxbbbxxxxxx",
+                "x    b  x   b px",
+                "x    x  x   x  x",
+                "xbbbxxxbbbbbxxxx",
+                "x    b  x   b  x",
+                "xxxxxxxxxxxxxxxx"
+            }); 
+
+            map.push_back(
+            {
+                "xxxxxxxxxxxxxxxx",
+                "xp  bbbbxbbb  px",
+                "xxxxxxxbxbxxxxxx",
+                "xbbbbbbbbbbbbbbx",
+                "xxxxxxxxxxxxxbbx",          
+                "xbbbbbbbbbbbbbbx",
+                "xxxxxxxbxxxxxxxx",
+                "xbbbbbbbbbbbbbbx",
+                "xxbxxxxxxxxxxbxx",
+                "xbbbbbbxbbbbbbbx",
+                "xp  bbbxbbbb  px",
+                "xxxxxxxxxxxxxxxx"
+            });    
+
+            // fait moxxxxxxandom pour choisir une map dans le vector
+            std::srand(std::time(nullptr));
+
+            // Sélectionner un vecteur de chaînes de caractères aléatoire
+            std::vector<std::string> randomVector = map[std::rand() % map.size()];
+            return randomVector;
+
+
 
         }
 

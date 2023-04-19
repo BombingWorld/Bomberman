@@ -20,7 +20,7 @@ enum TYPE {
 const int TAILLE_MUR = 50;
 const int TAILLE_PLAYER = 40;
 
-const std::vector<std::string> map = {
+/*const std::vector<std::string> map = {
     "xxxxxxxxxxxxxxxx",
     "xpb     b b p bx",
     "x b     b b  b x",
@@ -33,8 +33,11 @@ const std::vector<std::string> map = {
     "x            b x",
     "x              x",
     "xxxxxxxxxxxxxxxx",
-};
+};*/
 
 const int bombVar[] = {0, -10, -1, 1, 10};
+
+
+
 
 #endif /* !DATA_HPP_ */
