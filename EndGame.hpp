@@ -1,6 +1,6 @@
 #include <unistd.h>
 #include "raylib.h"
-/*
+
 class EndGame {
 private:
     const int screenWidth;
@@ -10,14 +10,11 @@ public:
     : screenWidth(screenWidth), screenHeight(screenHeight){} 
     
     bool AfficheEndGame(){
-        const char* backgroundImagePath = "../assets/lava.png";
+
         const char* buttonImagePath = "../assets/wall.png";
         const int buttonWidth = 100;
         const int buttonHeight = 50;
         bool isClosed = true;
-
-        // Charger l'image de fond
-        Texture2D backgroundTexture = LoadTexture(backgroundImagePath);
 
         // Charger l'image du bouton en utilisant les dimensions du bouton
         Image buttonImage = LoadImage(buttonImagePath);
@@ -36,12 +33,10 @@ public:
         // Boucler la mise à jour de la fenêtre
         while (!WindowShouldClose())
         {
-            // Effacer le fond d'écran et afficher l'image de fond
-            ClearBackground(WHITE);
-            DrawTexture(backgroundTexture, 0, 0, WHITE);
-
+          
+          
             // Afficher le bouton centré sur la fenêtre
-            DrawText("PARTIE FINIE MOTHER FUCK", 50, 150, 20, WHITE); // Afficher le texte "Nombre de joueur :"
+            DrawText("PARTIE FINIE MOTHER FUCK", 50, 150, 50, WHITE); // Afficher le texte "Nombre de joueur :"
             DrawTexture(buttonTexture, buttonRect.x, buttonRect.y, WHITE);
 
             // Vérifier si le bouton est cliqué
@@ -62,10 +57,8 @@ public:
         }
 
         // Libérer les ressources à la fin
-        UnloadTexture(backgroundTexture);
         UnloadTexture(buttonTexture);
 
         return isClosed;
     }
 };
-*/
