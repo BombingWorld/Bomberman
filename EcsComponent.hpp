@@ -67,8 +67,11 @@
         int value;
     };
 
+    struct Scene {
+        int index;
+    };
 struct project_config {
-    using components_list = std::tuple<Position, Drawable, Killable, Movable, Collidable, Dropable, Size, Animable, Explodable, Power, Burnable, Rotate>;
+    using components_list = std::tuple<Position, Drawable, Killable, Movable, Collidable, Dropable, Size, Animable, Explodable, Power, Burnable, Rotate, Scene>;
 };
 
 

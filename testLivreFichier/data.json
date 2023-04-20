@@ -1,0 +1,10 @@
+{
+   "nombreDeJoueur" : 4,
+   "puissanceDesBombes" : 1,
+   "coleurPerso1" : "rouge",
+   "coleurPerso2" : "bleu",
+   "coleurPerso3" : "vert",
+   "coleurPerso4" : "jaune",
+   "timer" : 60
+
+}

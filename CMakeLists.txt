@@ -38,7 +38,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++20")
 
 # add the executable
-add_executable(bomberman main.cpp)
+add_executable(bomberman main.cpp ProjectManager.cpp)
 
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} raylib)
 
