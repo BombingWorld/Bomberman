@@ -3,5 +3,6 @@
 int main()
 {
     ProjectManager pm;
-    return pm.Run();
+    while(pm.Run()){}
+    return 0;
 }

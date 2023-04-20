@@ -17,12 +17,19 @@
 #include "data.hpp"
 
 #include "cmath"
+#include "MenuAccueil.hpp"
+#include "MenuParametrePartie.hpp"
 
 class ProjectManager
 {
 public:
     ProjectManager()
     {
+        nbJoueur = 2;
+        for (int i = 0; i < 4; i++) {
+            SkinJoueurs[i] = i + 1;
+        }
+        puissanceBombes = 1;
         config_extractor<project_config::components_list>::function(_ecs); // sys
     }
 
@@ -47,12 +54,34 @@ public:
         SetWindowIcon(icon);
         SetTargetFPS(30);
 
+        /// Ajout des menus ///
+        MenuAccueil* ManuA = new MenuAccueil(screenWidth, screenHeight);
+        if(ManuA->AfficheMenuAccueil()){
+            return 0;
+        }
+        delete ManuA;
+
+
+        MenuParametrePartie* MenuP = new MenuParametrePartie(screenWidth, screenHeight);
+        if(MenuP->AfficheParametrePartie(nbJoueur, SkinJoueurs, puissanceBombes)){
+            return 0;
+        }
+        delete MenuP;
+
+        std::cout<<nbJoueur;
+        /// fin des menus ///
+        
+
         this->init();
 
         while (!WindowShouldClose())
         { // Detect window close button or ESC key
-            this->update();
-
+            if (this->update(puissanceBombes) == 0) {
+                CloseAudioDevice();
+                CloseWindow();
+                return 1;
+            }
+             
             BeginDrawing();
             ClearBackground(BLACK);
             this->event();
@@ -69,7 +98,7 @@ public:
 
     void init();
 
-    void update();
+    int update(int puissanceJoueurs);
 
     void event();
 
@@ -82,6 +111,36 @@ public:
 
         map.push_back(
             {"xxxxxxxxxxxxxxxx",
+             "xp xx x xx xx px",
+             "x bbbbbbbbbbbb x",
+             "xbbxxbxxbbxbxxbx",
+             "xbbbbbbbbbbbbbbx",
+             "xbxbxbxbxbxbxbbx",
+             "xbbbbbbbbbbbbbbx",
+             "xbxbxbxbxbxbxbbx",
+             "xbbbbbbbbbbbbbbx",
+             "x xbxbxbxbxbxb x",
+             "xp bbbxbbbbbb px",
+             "xxxxxxxxxxxxxxxx"});
+
+             map.push_back(
+            {"xxxxxxxxxxxxxxxx",
+             "x              x",
+             "x              x",
+             "xb             x",
+             "x              x",
+             "x              x",
+             "x              x",
+             "x              x",
+             "x              x",
+             "x              x",
+             "x              x",
+             "xxxxxxxxxxxxxxx"});
+
+
+
+                    map.push_back(
+            {"xxxxxxxxxxxxxxxx",
              "xp bbbbxbbbbb px",
              "x  bbbbxbbbbb  x",
              "xbbbbbbxbbbbbbbx",
@@ -93,6 +152,7 @@ public:
              "x  bbbbxbbbbb  x",
              "xp bbbbxbbbbb px",
              "xxxxxxxxxxxxxxxx"});
+             
 
         map.push_back(
             {"xxxxxxxxxxxxxxxx",
@@ -121,6 +181,27 @@ public:
              "xbbbbbbxbbbbbbbx",
              "xp  bbbxbbbb  px",
              "xxxxxxxxxxxxxxxx"});
+
+/*
+"xxxxxxxxxxxxxxx"
+            "xxxxxxxxxxxxxxx"
+"xxxxxxxxxxxxxxx"
+"xxxxxxxxxxxxxxx"
+"xxxxxxxxxxxxxxx"
+"xxxxxxxxxxxxxxx"
+"xxxxxxxxxxxxxxx"
+"xxxxxxxxxxxxxxx"
+"xxxxxxxxxxxxxxx"
+"xxxxxxxxxxxxxxx"
+"xxxxxxxxxxxxxxx"
+"xxxxxxxxxxxxxxx"
+*/
+
+
+
+
+                
+                 
 
         // fait moxxxxxxandom pour choisir une map dans le vector
         std::srand(std::time(nullptr));
@@ -159,6 +240,10 @@ protected:
     Music music;
     Sound soundPreExplosion;
     Sound soundExplosion;
+    
+    int nbJoueur;
+    int SkinJoueurs[4]; //Recoie l'ID du skin en fonction du joueur 
+    unsigned int puissanceBombes;
 };
 
 #endif /* !ECS_COMPONENT_HPP_ */

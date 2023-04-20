@@ -34,7 +34,7 @@ void ProjectManager::init()
      _ecs.add_component<Drawable>(background, {LoadTextureFromImage(imageBackground)});*/
 
     // init from map
-    const int NBPLAYERMAX = 4;
+    const int NBPLAYERMAX = this->nbJoueur;
     const std::vector<std::string> map = getMap();
     int nbPlayer = 0;
     const int playerKeys[][5] = {{KEY::Z, KEY::Q, KEY::S, KEY::D, KEY::E}, {KEY::T, KEY::F, KEY::G, KEY::H, KEY::Y}, {KEY::I, KEY::J, KEY::K, KEY::L, KEY::O}, {KEY::UP, KEY::LEFT, KEY::DOWN, KEY::RIGHT, KEY::ENTER}};
@@ -63,7 +63,7 @@ void ProjectManager::init()
             }
             else if (map[i][j] == 'p')
             {
-                if (nbPlayer > NBPLAYERMAX)
+                if (nbPlayer == NBPLAYERMAX)
                 {
                     break;
                 }
@@ -75,7 +75,7 @@ void ProjectManager::init()
                 _ecs.add_component<Dropable>(player, {playerKeys[nbPlayer][4]});
                 _ecs.add_component<Size>(player, {float(TAILLE_PLAYER), float(TAILLE_PLAYER)});
                 _ecs.add_component<Animable>(player, {0, 0, 40, 40, 40, 40, 0, 0, 6, 4});
-                _ecs.add_component<Power>(player, {1});
+                _ecs.add_component<Power>(player, {this->puissanceBombes});
                 _ecs.add_component<Killable>(player, {});
                 _ecs.add_component<Scene>(player, {1});
 
@@ -85,7 +85,7 @@ void ProjectManager::init()
     }
 }
 
-void ProjectManager::update()
+int ProjectManager::update(int puissanceJoueurs)
 {
     auto &animables = _ecs.get_components<Animable>();
     auto &explodables = _ecs.get_components<Explodable>();
@@ -94,6 +94,7 @@ void ProjectManager::update()
     auto &killables = _ecs.get_components<Killable>();
     auto &burnables = _ecs.get_components<Burnable>();
     auto &movables = _ecs.get_components<Movable>();
+    auto &scenes = _ecs.get_components<Scene>();
 
     UpdateMusicStream(music);
 
@@ -152,8 +153,17 @@ void ProjectManager::update()
             howmanyplayer++;
         }
     }
-    if (howmanyplayer < 2)
-        exit(EXIT_SUCCESS);
+    if (howmanyplayer < 2) {
+        //exit(EXIT_SUCCESS);
+        for (int i = 0, j = 0; i < scenes.size(); i++) {
+            if (scenes[i])
+            {
+                _ecs.kill_entity(_ecs.entity_from_index(i));
+            }
+        }
+        return 0;
+    }
+    return 1;
 }
 
 void ProjectManager::event()
