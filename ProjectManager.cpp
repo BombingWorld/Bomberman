@@ -6,7 +6,7 @@ void ProjectManager::init()
 {
     // musique
     music = LoadMusicStream("../assets/music/musicFon.mp3");
-    soundPreExplosion = LoadSound("../assets/music/ala.mps3"); // Load WAV audio file
+    soundPreExplosion = LoadSound("../assets/music/ala.mp3"); // Load WAV audio file
     soundExplosion = LoadSound("../assets/explosion.mp3");   // Load OGG audio file
 
     PlayMusicStream(music);
