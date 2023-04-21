@@ -2,6 +2,7 @@
 #include "ProjectManager.hpp"
 #include "raylib.h"
 
+
 void ProjectManager::init()
 {
     // musique
@@ -86,7 +87,7 @@ void ProjectManager::init()
     }
 }
 
-int ProjectManager::update(int puissanceJoueurs)
+int ProjectManager::update(int puissanceJoueurs, int screenWidth, int screenHeight)
 {
     auto &animables = _ecs.get_components<Animable>();
     auto &explodables = _ecs.get_components<Explodable>();
@@ -160,9 +161,14 @@ int ProjectManager::update(int puissanceJoueurs)
             if (scenes[i])
             {
                 _ecs.kill_entity(_ecs.entity_from_index(i));
+
             }
         }
+        EndGame* endgame = new EndGame(screenWidth, screenHeight);
+        endgame->AfficheEndGame();
         return 0;
+        
+
     }
     return 1;
 }

@@ -19,6 +19,7 @@
 #include "cmath"
 #include "MenuAccueil.hpp"
 #include "MenuParametrePartie.hpp"
+#include "EndGame.hpp"
 
 class ProjectManager
 {
@@ -75,7 +76,7 @@ public:
 
         while (!WindowShouldClose())
         { // Detect window close button or ESC key
-            if (this->update(puissanceBombes) == 0) {
+            if (this->update(puissanceBombes, screenWidth, screenHeight) == 0) {
                 CloseAudioDevice();
                 CloseWindow();
                 return 1;
@@ -97,7 +98,7 @@ public:
 
     void init();
 
-    int update(int puissanceJoueurs);
+    int update(int puissanceJoueurs,int screenWidth,int screenHeight);
 
     void event();
 
@@ -138,7 +139,7 @@ public:
 
 
 
-                    map.push_back(
+            map.push_back(
             {"xxxxxxxxxxxxxxxx",
              "xp bbbbxbbbbb px",
              "x  bbbbxbbbbb  x",
@@ -180,31 +181,8 @@ public:
              "xbbbbbbxbbbbbbbx",
              "xp  bbbxbbbb  px",
              "xxxxxxxxxxxxxxxx"});
-
-/*
-"xxxxxxxxxxxxxxx"
-            "xxxxxxxxxxxxxxx"
-"xxxxxxxxxxxxxxx"
-"xxxxxxxxxxxxxxx"
-"xxxxxxxxxxxxxxx"
-"xxxxxxxxxxxxxxx"
-"xxxxxxxxxxxxxxx"
-"xxxxxxxxxxxxxxx"
-"xxxxxxxxxxxxxxx"
-"xxxxxxxxxxxxxxx"
-"xxxxxxxxxxxxxxx"
-"xxxxxxxxxxxxxxx"
-*/
-
-
-
-
-                
+               
                  
-
-        // fait moxxxxxxandom pour choisir une map dans le vector
-        //std::srand(std::time(nullptr));
-
         // Sélectionner un vecteur de chaînes de caractères aléatoire
         std::vector<std::string> randomVector = map[std::rand() % map.size()];
         return randomVector;

@@ -11,9 +11,9 @@ public:
     
     bool AfficheEndGame(){
 
-        const char* buttonImagePath = "../assets/wall.png";
-        const int buttonWidth = 100;
-        const int buttonHeight = 50;
+        const char* buttonImagePath = "../assets/retry.png";
+        const int buttonWidth = 200;
+        const int buttonHeight = 100;
         bool isClosed = true;
 
         // Charger l'image du bouton en utilisant les dimensions du bouton
@@ -25,7 +25,7 @@ public:
         // Définir la position du bouton au centre de la fenêtre
         Rectangle buttonRect = {
             350.0,
-            275.0,
+            375.0,
             buttonWidth,
             buttonHeight
         };
@@ -36,7 +36,7 @@ public:
           
           
             // Afficher le bouton centré sur la fenêtre
-            DrawText("PARTIE FINIE MOTHER FUCK", 50, 150, 50, WHITE); // Afficher le texte "Nombre de joueur :"
+            DrawText("PARTIE FINIE ", 150, 300, 80, WHITE); // Afficher le texte "Nombre de joueur :"
             DrawTexture(buttonTexture, buttonRect.x, buttonRect.y, WHITE);
 
             // Vérifier si le bouton est cliqué
