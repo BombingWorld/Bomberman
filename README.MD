@@ -1,15 +1,14 @@
 - [x] app
-- [ ] Bomberman manager 
+- [x] Bomberman manager 
 - [x] ECS
 - [x] animation Bomb
 - [x] animation Player
-- [ ] animation Explosion
+- [x] animation Explosion
 - [x] kill player
 - [x] kill box 
-- [ ] animation kill
-- [ ] animation End game
-- [ ] Menu
-- [ ] Bonus
+- [x] animation kill
+- [x] animation End game
+- [x] Menu
 - [x] Cmake
 - [x] Librairies Raylib
 - [x] README.MD
