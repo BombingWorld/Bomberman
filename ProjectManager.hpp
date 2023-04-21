@@ -27,7 +27,7 @@ public:
     {
         nbJoueur = 2;
         for (int i = 0; i < 4; i++) {
-            SkinJoueurs[i] = i + 1;
+            SkinJoueurs[i] = i + 1; // Choix du skin entre 1 et 6, avec i=joueur entre 0 et 3
         }
         puissanceBombes = 1;
         config_extractor<project_config::components_list>::function(_ecs); // sys
@@ -68,7 +68,6 @@ public:
         }
         delete MenuP;
 
-        std::cout<<nbJoueur;
         /// fin des menus ///
         
 
@@ -204,7 +203,7 @@ public:
                  
 
         // fait moxxxxxxandom pour choisir une map dans le vector
-        std::srand(std::time(nullptr));
+        //std::srand(std::time(nullptr));
 
         // Sélectionner un vecteur de chaînes de caractères aléatoire
         std::vector<std::string> randomVector = map[std::rand() % map.size()];
@@ -233,7 +232,7 @@ protected:
 protected:
     Image imageMur;
     Image imageBox;
-    Image imagePlayer[4];
+    Image imagePlayer[6];
     Image imageBackground;
     Image imageBomb;
     Image imageFire;

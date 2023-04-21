@@ -10,14 +10,19 @@ public:
     : screenWidth(screenWidth), screenHeight(screenHeight){} 
     
     bool AfficheMenuAccueil(){
-        const char* backgroundImagePath = "../assets/lava.png";
-        const char* buttonImagePath = "../assets/wall.png";
+        const char* backgroundImagePath = "../assets/home2.png";
+        const char* buttonImagePath = "../assets/btnJouer.png";
         const int buttonWidth = 100;
         const int buttonHeight = 50;
         bool isClosed = true;
 
-        // Charger l'image de fond
-        Texture2D backgroundTexture = LoadTexture(backgroundImagePath);
+        // Charger l'image de fond en changeant ses dimenssions
+        Image fond = LoadImage(backgroundImagePath);
+        ImageResize(&fond, 800, 800); // Redimensionner l'image
+        Texture2D backgroundTexture = LoadTextureFromImage(fond);
+        UnloadImage(fond); // Libérer l'image redimensionnée
+
+        
 
         // Charger l'image du bouton en utilisant les dimensions du bouton
         Image buttonImage = LoadImage(buttonImagePath);

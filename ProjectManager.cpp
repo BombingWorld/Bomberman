@@ -6,7 +6,7 @@ void ProjectManager::init()
 {
     // musique
     music = LoadMusicStream("../assets/music/musicFon.mp3");
-    soundPreExplosion = LoadSound("../assets/music/ala.mp3"); // Load WAV audio file
+    soundPreExplosion = LoadSound("../assets/music/tictac.mp3"); // Load WAV audio file
     soundExplosion = LoadSound("../assets/explosion.mp3");   // Load OGG audio file
 
     PlayMusicStream(music);
@@ -15,7 +15,7 @@ void ProjectManager::init()
     // Charger l'image
     this->imageMur = LoadImage("../assets/wall.png");
     this->imageBox = LoadImage("../assets/box.png");
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 6; i++)
         this->imagePlayer[i] = LoadImage(std::string("../assets/player" + std::to_string(i + 1) + ".png").c_str());
     this->imageBackground = LoadImage("../assets/lava.png");
     this->imageBomb = LoadImage("../assets/bomb.png");
@@ -24,7 +24,7 @@ void ProjectManager::init()
     // Redimensionner l'image en 15x15
     ImageResize(&imageMur, TAILLE_MUR, TAILLE_MUR);
     ImageResize(&imageBox, TAILLE_MUR, TAILLE_MUR);
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 6; i++)
         ImageResize(&imagePlayer[i], TAILLE_PLAYER * 6, TAILLE_PLAYER * 4);
     ImageResize(&imageBomb, 150, 50);
     ImageResize(&imageFire, 250, 200);
@@ -37,7 +37,7 @@ void ProjectManager::init()
     const int NBPLAYERMAX = this->nbJoueur;
     const std::vector<std::string> map = getMap();
     int nbPlayer = 0;
-    const int playerKeys[][5] = {{KEY::Z, KEY::Q, KEY::S, KEY::D, KEY::E}, {KEY::T, KEY::F, KEY::G, KEY::H, KEY::Y}, {KEY::I, KEY::J, KEY::K, KEY::L, KEY::O}, {KEY::UP, KEY::LEFT, KEY::DOWN, KEY::RIGHT, KEY::ENTER}};
+    const int playerKeys[][5] = {{KEY::Z, KEY::Q, KEY::S, KEY::D, KEY::E}, {KEY::UP, KEY::LEFT, KEY::DOWN, KEY::RIGHT, KEY::ENTER}, {KEY::I, KEY::J, KEY::K, KEY::L, KEY::O}, {KEY::T, KEY::F, KEY::G, KEY::H, KEY::Y}};
     for (int i = 0; i < map.size(); i++)
     {
         for (int j = 0; j < map[i].size(); j++)
@@ -65,11 +65,12 @@ void ProjectManager::init()
             {
                 if (nbPlayer == NBPLAYERMAX)
                 {
-                    break;
+                    break;  
                 }
                 auto player = _ecs.spawn_entity();
                 _ecs.add_component<Position>(player, {float(j * TAILLE_MUR), float(i * (TAILLE_MUR))});
-                _ecs.add_component<Drawable>(player, {LoadTextureFromImage(imagePlayer[nbPlayer])});
+                //_ecs.add_component<Drawable>(player, {LoadTextureFromImage(imagePlayer[nbPlayer])});
+                _ecs.add_component<Drawable>(player, {LoadTextureFromImage(imagePlayer[this->SkinJoueurs[nbPlayer]-1])});
                 _ecs.add_component<Movable>(player, {playerKeys[nbPlayer][0], playerKeys[nbPlayer][2], playerKeys[nbPlayer][1], playerKeys[nbPlayer][3]});
                 _ecs.add_component<Collidable>(player, {});
                 _ecs.add_component<Dropable>(player, {playerKeys[nbPlayer][4]});
